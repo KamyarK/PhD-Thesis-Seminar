@@ -385,6 +385,10 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
         \end{enumerate}
         \item<5-> A ``light'' local search heuristics for improving the incumbent
         \item<6-> Branching heuristics for finding a good candidate variable to fix
+        \item<7-> Our work partially published in:
+        \begin{itemize}
+            \item<8-> K. K., R. Krishnamurti: \alert{Prize Collecting Travelling Salesman Problem - Fast Heuristic Separations}, \emph{ICORES 2016} \cite{KK16}
+        \end{itemize}
     \end{itemize}
 \end{itemize}
 \end{frame}
@@ -814,7 +818,7 @@ Let $H = (X, \, Y, \, E)$ be a bipartite graph. An ordering $<_X$ of $X$ in $H$ 
         \item<3-> Going form right to left for players, (try to) assign items to players in a right-aligned fashion for each input vector
         \item<4-> Keep track of \alert{successful} input vectors
         \item<5-> The running time: $\bigO{(m + n)nm^{2(C+1)}}$, in which $C \leq k^{1.4}$
-        \item<6-> Approximation factor: $1 - \frac{3}{k}$ form the \alert{two lemmas} times $\frac{1}{1 + \frac{1}{k}}$ form the \alert{rounding}
+        \item<6-> Approximation factor: $1 - \frac{3}{k}$ from the \alert{two lemmas} times $\frac{1}{1 + \frac{1}{k}}$ from the \alert{rounding}
 	\end{itemize}
 \end{frame}
 
@@ -877,8 +881,6 @@ Let $H = (X, \, Y, \, E)$ be a bipartite graph. An ordering $<_X$ of $X$ in $H$ 
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Our Method: Extended Laminar Families of Sets}
-\end{frame}
 
 \begin{frame}{Future Directions}
 	\begin{itemize}
@@ -895,49 +897,19 @@ Let $H = (X, \, Y, \, E)$ be a bipartite graph. An ordering $<_X$ of $X$ in $H$ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusion and Future Work}
-
-\begin{frame}{Summary}
-\begin{itemize}
-\item<1-> We analyzed a shrinking heuristic for separation of GSECs
-	\begin{itemize}
-	\item<2-> \alert{Significant improvement} in the running time compared to LP separation
-	\end{itemize}
-\item<3-> We studied the benefits of using odd component heuristic for separation of Primitive Combs
-	\begin{itemize}
-	\item<4-> In most cases: \alert{improves} the solution quality, spending a reasonable amount of extra time
-	\item<5-> In others: generates extra cuts in the added time while the solution quality does not improve (\alert{optimality certificate})
-	\item<6-> In some cases: achieves \alert{nothing} while spending a long time
-	\item<7-> Trade-off?
-	\end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Future Work}
-\begin{itemize}
-\item<1-> Heuristics for many other families of cuts (valid inequalities)
-	\begin{itemize}
-	\item<2-> e.g., General Comb Inequalities, Cycle-Cover, $\ldots$
-	\end{itemize}
-\item<3-> Analyze the interplay between the cuts and the order they are introduced in
-\end{itemize}
-\end{frame}
-
 \plain{Thank You!}
 
 \begin{frame}{Publication}
 \begin{itemize}
     \item Published papers:
     \begin{itemize}
-        \item[\cite{KKRS13}]
-        \item[\cite{KK16}]
+        \item[\cite{KKRS13}]  K. K., R. Krishnamurti, A. Rafiey, G. Stamoulis: \alert{PTAS for Ordered Instances of Resource Allocation Problems}, \emph{FSTTCS 2013}
+        \item[\cite{KK16}] K. K., R. Krishnamurti: \alert{Prize Collecting Travelling Salesman Problem - Fast Heuristic Separations}, \emph{ICORES 2016} 
     \end{itemize}
     \item Submitted papers:
     \begin{itemize}
-        \item[cite{}]
+        \item[\cite{KKRS16}] K. K., R. Krishnamurti, A. Rafiey, G. Stamoulis:
+\alert{PTAS for Ordered Instances of Resource Allocation Problems with Restrictions on Inclusions} \emph{(submitted paper)} 
     \end{itemize}
         
 \end{itemize}
