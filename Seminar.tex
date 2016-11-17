@@ -78,40 +78,160 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
 \end{definition}
 \end{frame}
 
-\begin{frame}{Resource Allocation and Vehicle Routing}
+\begin{frame}{Example 1. Scheduling I}
 \begin{itemize}
-    \item The relationship
+	\item<1-> Scheduling is one of the classic problems in combinatorial optimization
+	\item<3-> Scheduling and resource allocation have many similarities
+	\item<4-> Scheduling problems can usually be cast as resource allocation problems and vice versa    
+	\begin{example}
+	    Given:
+        \begin{itemize}
+            \item<6-> A set of jobs
+            \item<7-> A set of processors (machines)
+            \item<8-> Processing times
+            \item<9-> An objective functions: minimize the makespan, sum of processing times, $\ldots$
+        \end{itemize}
+    \end{example}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Example 1. Scheduling II}
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=9cm]{Scheduling.eps}
+    \end{center}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Example 2. Vehicle Routing}
+\begin{itemize}
+    \item<1-> Vehicle Routing problem (VRP) is a major problem in the logistics and delivery services
+    \item<2-> VPR can also be viewed as an IRA problem.
+    \begin{example}
+        Given: 
+        \begin{itemize}
+            \item<3-> A fleet of vehicles
+            \item<4-> A set of clients spread over an area 
+            \item<5-> Travel costs
+            \item<6-> An objective function: minimize the sum of the travel costs
+            \item<7-> Extra constraints: time windows, skill requirements, $\ldots$
+        \end{itemize}        
+    \end{example}
 \end{itemize}
     
 \end{frame}
 
-\begin{frame}{Resource Allocation and Scheduling I}
-\begin{itemize}
-	\item<1-> Scheduling is one of the classic problems in combinatorial optimization
-	\item<3-> Scheduling and resource allocation have many similarities:
-	\begin{itemize}
-	    \item<4-> Scheduling problems can usually be cast as resource allocation problems and vice versa 
-	\end{itemize}
-\end{itemize}
-\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Skill Vehicle Routing Problem}
 
-\begin{frame}{Resource Allocation and Scheduling II}
-\begin{itemize}
-	\item<1-> 	Major elements of a scheduling problem:
-	\begin{enumerate}
-		\item<2-> A set $\cJ$ of $n$ \emph{jobs} (instead of resources)
-		\item<3-> A set $\cM$ of $m$ \emph{machines} (instead of players)
-		\item<4-> A utility function $f_{i}: \, 2^{\cJ} \rightarrow \bR$ for each machine $i \in \cM$ (representing the job processing times on machine $i$ instead of values)
-		\item<5-> An objective function on \alert{assignments} (instead of allocations)
-	\end{enumerate}	
-\end{itemize}
-\begin{example}<6->
-Value of item $j$ to player $i$ in the resource allocation model: $f_{i}(j) = v_{ij}$ for $i \in \cP$ and $j \in \cR$. Processing time of job $j$ on machine $i$ in the scheduling model: $f_{i}(j) = p_{ij}$ for $i \in \cM$ and $j \in \cJ$.
+\begin{frame}{Introduction I}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{VRPSS01.pdf} 
+    \end{center}
 \end{example}
 \end{frame}
 
+\begin{frame}{Introduction II}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{VRPSS03.pdf} 
+    \end{center}
+\end{example}
+\end{frame}
 
-\begin{frame}[fragile]{The Prize Collecting TSP}
+\begin{frame}{Introduction III}
+\begin{itemize}
+    \item<1-> A set of \alert{customers} $S$
+    \item<2-> A skill requirement $q_j$ for each customer $j \in S$
+    \item<3-> A fleet of vehicles (\alert{drivers}) $D$
+    \item<4-> A set of skills $K_i$ for each driver $i \in D$
+    \item<5-> Metric graph $G = (S, \, E)$ (on a Euclidean plane) 
+    \item<6-> A special node \emph{depot}, $r \in S$
+    \item<7-> A cost function $c:E \rightarrow \bR^+$ for every pair of nodes
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Introduction IV}
+\begin{itemize}
+    \item<1-> The goal is to find routes that start and end at $r$ and assign them to drivers such that
+    \begin{itemize}
+        \item<2-> The union of all the tours cover $S$
+        \item<3-> The drivers can served the customers assigned to them
+        \item<4-> The total travel distance is minimized
+    \end{itemize}
+    \item<5-> We seek optimal or \emph{provably near-optimal } solutions because:
+        \begin{itemize}
+            \item<6-> Vehicle routing problems are becoming more and more recurrent (if the problem size allows optimal solution)
+            \item<7-> Optimal solutions can serve as a benchmark for heuristic solutions (for prohibitively large instances)
+        \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Background}
+\begin{itemize}
+    \item<1-> Linear Programming (LP) is the model of choice for obtaining exact solutions
+    \item<2-> Many researchers have used a \alert{Delayed Column Generation} technique (Column Generation) in the context of VRP with \emph{time windows}
+    \item<3-> Column generation works very well for LP formulations with large number of variables
+    \item<4-> See \cite{DDS05} for an extensive list of work
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Column Generation I}
+\begin{itemize}
+    \item<1-> An ILP formulation with small integrality gap:
+    \item<2->[ ] \begin{align}
+        \text {min } \label{cg_obj}	 \sum_{ i, 	T \in \cT(i) } z_{i, T} & \cdot C(T) &    &  \\
+        \text{subject to }             & & \nonumber  \\
+        \label{const:cg1}       \sum_{ T \in \cT(i) } z_{ i, T } & = 1  &   \forall i \in D \\
+        \label{const:cg2}       \sum_{ i, T \in \cT(i): T \ni j } z_{ i, T } & \geq 1   &   \forall j \in S \\
+        \label{consT:cg3}       z_{ i, T } & \in \{0,\, 1\}    & \forall \, i \in D, \, \forall \, T \in \cT(i) 
+    \end{align}
+    \item<3-> An indicating variable $z_{i, T}$ for every possible \alert{tour} $T$ and every driver $i$
+    \item<4-> $\cT(i)$: set of tours serviceable by driver $i$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Column Generation II}
+\begin{itemize}
+    \item<1-> Exponential number of variables $z_{i, T}$
+    \item<2-> Column generation: do not introduce them all at once
+    \item<3-> We use column generation in an iterative frame work: \alert{Branch-and-Price}
+    \begin{itemize}
+        \item<4-> A \alert{Branch-and-Cut} on the dual formulation
+        \item<5-> Uses the column generation technique in a branch-and-bound algorithm
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Branch-and-Price I}
+\begin{center}
+        \includegraphics[width=7cm]{Branch_and_Price.eps} 
+\end{center}
+\end{frame}
+
+\begin{frame}{Branch-and-Price II}
+\begin{itemize}
+    \item<1-> Pricing: finding ``good'' variables to add to the model
+    \begin{itemize}
+        \item<2-> A \alert{reduced cost} column
+        \item<3-> Finding such a column is a problem of its own (\alert{subproblem})
+        \item<4-> For SVRP, the subproblem is the \alert{Prize-Collecting TSP} (PCTSP)
+    \end{itemize}
+    \item<5-> Branching: use heuristics to decide which variable to \emph{fix}
+    \item<6-> Bounding: if the current LP has an objective value worse than the best known so far, abandon this LP and go the next (not shown in the flowchart)
+    \item<7-> Termination: when no more reduced cost columns or fractional variables, return the best solution (the \alert{incumbent})
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Prize-Collecting Traveling Salesman Problem}
+
+
+\begin{frame}[fragile]{Introduction}
 
 \begin{itemize}
 \item<1-> A variant of the Traveling Salesman Problem (TSP)
@@ -121,11 +241,10 @@ Value of item $j$ to player $i$ in the resource allocation model: $f_{i}(j) = v_
 \item<5-> A prize function $\beta:S \rightarrow \bR^+$ for every node
 \item<6-> \alert{Objective:} Find a tour covering the depot and \alert{some} other nodes, maximizing the sum of prizes minus the sum of costs
 
-
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{The Prize Collecting TSP - Example}
+\begin{frame}[fragile]{An Example I}
 
 \begin{itemize}
 \item An instance of the Prize Collecting TSP:
@@ -156,7 +275,7 @@ Value of item $j$ to player $i$ in the resource allocation model: $f_{i}(j) = v_
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{The Prize Collecting TSP - Example (Cont'd)}
+\begin{frame}[fragile]{An Example II}
 
 \begin{itemize}
 \item Solution value $ = (6 + 2 + 7 + 10 + 4) - (3.2  + 1.4 + 2.2 + 3.2 + 2.2 + 1.4) = $ \alert{15.4}
@@ -188,7 +307,7 @@ Value of item $j$ to player $i$ in the resource allocation model: $f_{i}(j) = v_
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{The Prize Collecting TSP (Cont'd)}
+\begin{frame}[fragile]{Other Names: Penalty TSP}
 \begin{itemize}
 \item<1-> Alternatively, every node $v$ may have a penalty $\beta_v$. 
 \item<2-> Objective: cover the depot and some other nodes minimizing the cost plus penalties for the uncovered nodes
@@ -196,30 +315,73 @@ Value of item $j$ to player $i$ in the resource allocation model: $f_{i}(j) = v_
 \item<4-> Complexity: \NPH (optimization version)
 \item<5-> Arises as the subproblem in column generation approaches to various vehicle routing problems
 	\begin{itemize}
-	\item<6-> e.g., the ``Skill Vehicle Routing Problem'' \cite{Cappanera2011}
+	\item<6-> e.g., the ``Skill Vehicle Routing Problem'' 	\cite{Cappanera2011}
+	\item<7-> One needs to solve PCTSP to get reduced cost columns as well as \emph{upper bounds} on the objective value for the SVRP
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Background}
 \begin{itemize}
-\item<1-> Introduced by Egon Balas \cite{Balas89}
-\item<2-> More general version:
+    \item<1-> Introduced by Egon Balas \cite{Balas89}
+    \item<2-> More general version:
 	\begin{alertblock}{Prize Collecting TSP (PCTSP)}
 		A complete graph with the cost and prize functions is given. Cover the depot and some other nodes, maximize the sum of prizes minus the sum of costs, Furthermore, guarantee the total sum of prizes is at least a \alert{prescribed} amount.
 	\end{alertblock}
-\item<3-> Balas studied cuts for the PCTSP problem
-\item<4-> Idea: Find equivalent or similar cuts for PCTSP as those of TSP
+	\item<3-> Gendreau et al. \cite{GLS98} and Fischetti et al. \cite{FST97} have provided Branch-and-Cut algorithms for variants of the problem
+    \item<4-> Some metaheuristics for the PCTSP are due to Chaves and Lorena \cite{Chaves08}
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Background - Cuts}
+\begin{frame}{Exact Solutions: A Branch-and-Cut Algorithm I}
 \begin{itemize}
-\item<1-> Balas derives equivalent of Subtour Elimination Constraints (SEC) for PCTSP is 1989 \cite{Balas89}
-\item<2-> \alert{Generalized Subtour Elimination Constraints (GSEC)} introduced by Goemans in 1994 \cite{Goemans94} for Prize Collecting Steiner Tree problem
-\item<3-> For PCTSP, Balas finds the cuts corresponding to \alert{Primitive Comb Inequalities} (known for TSP) in 1995 \cite{Balas95}
+    \item<1-> Based on an ILP formulation:
+    \item<2-> [ ] \begin{align} 
+    \text {max } \label{pctsp_obj}     & \sum_{j\in S} \beta_j y_j  - \sum_{e\in E} c_e x_e &
+    \\
+    \text{subject to } \nonumber    &  & \\
+    \label{const:pctsp1}               & \sum_{e \in \delta(i)} x_e = 2 y_{i}  & \forall i \in S \\
+    \label{const:pctsp2}               & \sum_{e \in E(V) } x_e \leq \sum_{i \in V \backslash\{ k \}} y_{i} & \forall k \in V, V\subseteq S' \\
+    \label{const:pctsp3}               & y_r = 1 \\
+    \label{const:pctsp4}               & x_e \in \{0, \, 1\}, \, y_j \in \{0, \, 1\}  & \forall e \in E, \forall j \in S 
+    \end{align}
+    \item<3-> \constref{pctsp2} are referred to as the \alert{Generalized Subtour Elimination Constraints} (GSECs) 
 \end{itemize}
 \end{frame}
+
+\begin{frame}{Exact Solutions: A Branch-and-Cut Algorithm II}
+\begin{center}
+        \includegraphics[width=7cm]{Branch_and_Cut.eps} 
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{More Background}
+\begin{itemize}
+    \item<3-> Balas studied cuts for the PCTSP problem
+    \item<4-> Idea: Find equivalent or similar cuts for PCTSP as those of TSP
+    \item<1-> Balas derives equivalent of Subtour Elimination Constraints (SEC) for PCTSP is 1989 \cite{Balas89}
+    \item<2-> \alert{Generalized Subtour Elimination Constraints (GSEC)} introduced by Goemans in 1994 \cite{Goemans94} for Prize Collecting Steiner Tree problem
+    \item<3-> For PCTSP, Balas finds the cuts corresponding to \alert{Primitive Comb Inequalities} (known for TSP) in 1995 \cite{Balas95}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Our Contribution}
+\begin{itemize}
+    \item<1-> We developed a complete branch-and-cut algorithm:
+    \begin{itemize}
+        \item<2-> Fast separation heuristics that can detect two types of violated cuts:
+        \begin{itemize}
+            \item<3-> GSECs
+            \item<4-> Primitive Comb Inequalities
+        \end{itemize}
+        \item<5-> Local search heuristics for improving the lower bound
+        \item<6-> Branching heuristics for finding a good candidate variable to fix
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
 
 \begin{frame}[fragile]{Background - Separation}
 \begin{itemize}
@@ -250,8 +412,7 @@ where $S' = S \backslash \{r\}$ ($E'$ is defined as the subset of $E$ incident o
 \end{itemize}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Skill Vehicle Routing Problem}
+
 
 \begin{frame}[fragile]{Exact Separation}
 \begin{itemize}
