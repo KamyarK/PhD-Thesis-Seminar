@@ -333,7 +333,7 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Exact Solutions: A Branch-and-Cut Algorithm I}
+\begin{frame}{Exact Solutions}
 \begin{itemize}
     \item<1-> Based on an ILP formulation:
     \item<2-> [ ] \begin{align} 
@@ -345,90 +345,66 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
     \label{const:pctsp3}               & y_r = 1 \\
     \label{const:pctsp4}               & x_e \in \{0, \, 1\}, \, y_j \in \{0, \, 1\}  & \forall e \in E, \forall j \in S 
     \end{align}
-    \item<3-> \constref{pctsp2} are referred to as the \alert{Generalized Subtour Elimination Constraints} (GSECs) 
+    \item<3-> $S' = S \backslash \{r\}$ ($E'$ is defined as the subset of $E$ incident on $S'$).
+    \item<4-> \constref{pctsp2} are referred to as the \alert{Generalized Subtour Elimination Constraints} (GSECs) 
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Exact Solutions: A Branch-and-Cut Algorithm II}
+\begin{frame}[fragile]{Cutting Plane Method}
+\begin{itemize}
+    \item<1-> Problem: there are exponentially many GSECs
+    \item<2-> Solution: do not introduce them all at once
+    \begin{itemize}
+        \item<3-> Start with an initial set of constraints and solve the LP relaxation
+        \item<4-> Identify violated constrains (if any) and add them to the model
+        \item<5-> Iterate until completion
+    \end{itemize}
+    \item<6-> We can make the LP relaxation \emph{stronger} by using other valid inequalities
+    \item<7-> \alert{Primitive Comb Inequalities} are good candidates  
+    \item<8-> These constraints can be used in a \alert{Branch-and-Cut} algorithm
+    \begin{itemize}
+        \item<9-> A mix of cutting plane methods and branch-and-bound
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A Branch-and-Cut Algorithm for PCTSP}
 \begin{center}
         \includegraphics[width=7cm]{Branch_and_Cut.eps} 
 \end{center}
 \end{frame}
-
-\begin{frame}[fragile]{More Background}
-\begin{itemize}
-    \item<3-> Balas studied cuts for the PCTSP problem
-    \item<4-> Idea: Find equivalent or similar cuts for PCTSP as those of TSP
-    \item<1-> Balas derives equivalent of Subtour Elimination Constraints (SEC) for PCTSP is 1989 \cite{Balas89}
-    \item<2-> \alert{Generalized Subtour Elimination Constraints (GSEC)} introduced by Goemans in 1994 \cite{Goemans94} for Prize Collecting Steiner Tree problem
-    \item<3-> For PCTSP, Balas finds the cuts corresponding to \alert{Primitive Comb Inequalities} (known for TSP) in 1995 \cite{Balas95}
-\end{itemize}
-\end{frame}
-
 
 \begin{frame}{Our Contribution}
 \begin{itemize}
     \item<1-> We developed a complete branch-and-cut algorithm:
     \begin{itemize}
         \item<2-> Fast separation heuristics that can detect two types of violated cuts:
-        \begin{itemize}
+        \begin{enumerate}
             \item<3-> GSECs
             \item<4-> Primitive Comb Inequalities
-        \end{itemize}
-        \item<5-> Local search heuristics for improving the lower bound
+        \end{enumerate}
+        \item<5-> A ``light'' local search heuristics for improving the incumbent
         \item<6-> Branching heuristics for finding a good candidate variable to fix
     \end{itemize}
 \end{itemize}
 \end{frame}
 
 
-
-\begin{frame}[fragile]{Background - Separation}
+\begin{frame}[fragile]{Exact Separation of GSECs}
 \begin{itemize}
-\item<1-> Problem: exponential number of cuts
-\item<2-> GSECs and Primitive Comb Inequalities need to be introduced gradually (through iterations)
-\item<3-> \alert{Separation:} finding violated cuts in each iteration
-\item<4-> Separation heuristics have been studied for variations of PCTSP
-\begin{itemize}
-\item<5-> e.g., for Quota Prize Collecting TSP \cite{Berube09}
-\end{itemize}
-\end{itemize}
-\end{frame}
-
-
-\begin{frame}[fragile]{Formulation}
-\begin{itemize}
-\item<1-> Given complete graph $G = (S, \, E)$, a depot $r \in S$, and the cost and prize functions:
-\begin{align} 
-\text {max } \label{sp_obj}     & \sum_{j\in S} \beta_j y_j  - \sum_{e\in E} c_e x_e &
- \\
-\text{subject to } \nonumber    &  & \\
-\label{const:sp1}               & \sum_{e \in \delta(i)} x_e = 2 y_{i}  & \forall i \in S \\
-\label{const:sp2}               & \sum_{e \in E(V) } x_e \leq \sum_{i \in V \backslash\{ k \}} y_{i} & \forall k \in V, V\subseteq S' \\
-\label{const:sp3}               & y_r = 1 \\
-\label{const:sp4}               & x_e \in \{0,1\}, y_j \in \{0,1\}  & \forall e \in E, \forall j \in S 
-\end{align}
-where $S' = S \backslash \{r\}$ ($E'$ is defined as the subset of $E$ incident on $S'$).
-\end{itemize}
-\end{frame}
-
-
-
-\begin{frame}[fragile]{Exact Separation}
-\begin{itemize}
-\item<1-> Solve a linear relaxation of the PCTSP formulation
-\item<2-> Get the solution $(x^*, \, y^*)$ 
-\item<3-> For every node $k \in S'$:
-\begin{align} 
-\zeta_k \ \text  = \ {max } \label{sep_obj} & \sum_{e\in E'} x_e^{*} w_e  - \sum_{j \in S' \backslash \{ k \}}  y_j^{*} z_j     &  \\
-\text{subject to }                          & & \nonumber \\
-\label{const:sep1}                          & w_e\leq z_i, w_e\leq z_j  & \forall e =(i,j) \in E' \\
-\label{const:sep2}                          & w_e \geq z_i + z_j - 1    & \forall e = (i,j) \in E' \\
-\label{const:sep3}                          & w_e \in \{0,1\}, z_j \in \{0,1\}, z_k = 1   & \forall e \in E', \forall j \in S'
-\end{align}
-\item<4-> A strictly positive $\zeta_k$ means a violated GSEC
-\item<5-> The formulation is due to Wolsey \cite{Wolsey98}
-\item<6-> Solvable in polynomial time but \alert{time consuming!}
+    \item<1-> Solve a linear relaxation of the PCTSP formulation
+    \item<2-> Get the solution $(x^*, \, y^*)$ 
+    \item<3-> For every node $k \in S'$:
+    \begin{align} 
+        \zeta_k \ \text  = \ {max } \label{sep_obj} & \sum_{e\in E'} x_e^{*} w_e  - \sum_{j \in S' \backslash \{ k \}}  y_j^{*} z_j     &  \\
+        \text{subject to }                          & & \nonumber \\
+        \label{const:sep1}                          & w_e\leq z_i, w_e\leq z_j  & \forall e =(i,j) \in E' \\
+        \label{const:sep2}                          & w_e \geq z_i + z_j - 1    & \forall e = (i,j) \in E' \\
+        \label{const:sep3}                          & w_e \in \{0,1\}, z_j \in \{0,1\}, z_k = 1   & \forall e \in E', \forall j \in S'
+    \end{align}
+    \item<4-> A strictly positive $\zeta_k$ means a violated GSEC
+    \item<5-> The formulation is due to Wolsey \cite{Wolsey98}
+    \item<6-> Solvable in polynomial time but \alert{time consuming!}
 \end{itemize}
 \end{frame}
 
@@ -451,98 +427,160 @@ where $S' = S \backslash \{r\}$ ($E'$ is defined as the subset of $E$ incident o
 \end{frame}
 
 \begin{frame}{Shrinking Heuristic}
-\begin{itemize}
-\item<1-> Recall that $\sum_{e \in \delta(i)} x_e = 2 y_{i}$, for all $i \in S$
-\begin{figure}
-    \centering
-    \begin{tikzpicture}
-    	\draw [fill = yellow, opacity = 0.2] (-1.5, 0) circle [radius = 2];
-    	\draw [fill = yellow, opacity = 0.2] (3.5, 0) circle [radius = 2];	
-	\draw (0, 0) node[circle, inner sep=1pt, fill = black, label = {below:{$v$}}] (v) {}; 
-        \draw (2, 0) node[circle, inner sep=1pt, fill = black, label = {below:{$u$}}] (u) {};     
-        \node at (-1, 1) (a) {};
-        \node at (-1.4, 0) (b) {};
-        \node at (-1, -1) (c) {};
-        \node at (3, 1) (d) {};
-        \node at (3.4, 0) (e) {};
-        \node at (3, -1) (f) {};
-        \draw (u) to (v);
-        \draw (v) to (a);
-        \draw (v) to (b);
-        \draw (v) to (c);
-        \draw (u) to (d);
-        \draw (u) to (e);
-        \draw (u) to (f);
-        \draw [dashed] (v) to (1, 1);
-        \draw [dashed] (v) to (1, -1);
-        \draw [<->, bend right = 45, color = red] (a) to (c);
-        \draw [<->, bend left = 45, color = red] (d) to (f);
-        \node [color = black, above = 0.05cm] at (1, 0) {$x_e$};
-        \node [color = red] at (-2.5, 0) {$\leq 2y_v - x_e$};
-        \node [color = red] at (4.5, 0) {$\leq 2y_u - x_e$};
-        \node at (-1.5, -2.3) {$V$};
-        \node at (3.5, -2.3) {$S' \, \backslash \, V$};
-    \end{tikzpicture}
-    \caption{Shrinking the edge $x_e$ between the nodes $u$ and $v$}
-    \label{fig:shrink}    
-\end{figure}
-\item<2-> If $2y_u - x_e \leq x_e$, we can add $u$ to the $V$-side of the cut
-\item<3-> Safe shrinking
-\end{itemize}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking00.eps} 
+    \end{center}
+\end{example}
 \end{frame}
 
-\begin{frame}{Shrinking Heuristic (Cont'd)}
-\begin{itemize}
-\item<1-> While there are more than two nodes in the graph, repeat the following:
-\item<2-> For every edge, check if $\exists$ a safe shrinking
-\item<3-> If $u$ and $v$ are to be merged:
-	\begin{itemize}
-	\item<4-> Make them into a \alert{super node}
-	\item<5-> Merge incoming edges, combining weights
-	\item<6-> Assign a new $y_{\{u, v \}}$ to the supper node: $y_u + y_v - x_{uv}$
-	\item<7-> Update a value $m_{\{u, v \}}$, representing the maximum $y_k$ for any node $k$ in the super node
-	\end{itemize}
-\item<8-> After termination, either:
-	\begin{itemize}
-	\item<9-> We end up with exactly two nodes: \alert{represents the cut}, or
-	\item<10-> We fail to find safe shrinking: run the flow algorithm on the \alert{smaller} network
-	\end{itemize}
-\end{itemize}
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking01.eps} 
+    \end{center}
+\end{example}
 \end{frame}
 
-\begin{frame}{Shrinking Heuristic - Experimental Results}
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking02.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking03.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking04.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking05.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking06.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking07.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking08.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking09.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking10.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking11.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking12.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+\begin{frame}{Shrinking Heuristic}
+\begin{example}
+    \begin{center}
+            \includegraphics[width=8cm]{Shrinking13.eps} 
+    \end{center}
+\end{example}
+\end{frame}
+
+
+\begin{frame}{Computational Results}
 
 \begin{table}
-\caption{Computational results for the heuristic GSEC separation} \label{tbl:results1}
-\begin{minipage}{12cm}
 \begin{center}
-\resizebox{.55\textwidth}{!}{
-\begin{tabular}{l l l l l l l l}
+\resizebox{.75\textwidth}{!}
+{
+\begin{tabular}{l l l l l l l}
 \hline \\
-	&	\multicolumn{3}{l}{LP GSEC Sep.}	&	&	\multicolumn{3}{l}{Heuristic GSEC Sep.} \\
-\cline{2-4}  \cline{6-8} \\
-Instance	&	Obj.		&	Cuts		&	Time		&	&	Obj.		&	Cuts		&	Time		\\
+\textbf{Instance}	&	\textbf{Obj.}	&	\textbf{ILP Time}	&	\textbf{Optimal}	&	\textbf{Time}	&	\textbf{\% Gap}	& \\
 \hline \\
-ulysses22	&	-1964.93	&	16	&	1		&	&	-1964.93	&	13	&	<1	\\
-bayg29		&	-44.35		&	33	&	4		&	&	-44.35		&	14	&	<1	\\
-st70		&	-6433.23	&	94	&	423		&	&	-6433.23	&	26	&	1	\\
-rd100		&	-10119.1	&	189	&	2501	&	&	-10119.1	&	35	&	2	\\
-eil101		&	-8988.51	&	73	&	1108	&	&	-8988.51	&	17	&	5	\\
-lin105		&				&	N/A	&	t.l.	&	&	-87.93		&	354	&	4371\\
-gr137		&	-13070.5	&	112	&	4306	&	&	-13070.5	&	26	&	19	\\
-pr152		&	984.54		&	13	&	10780	&	&	984.54		&	13	&	2	\\
-gr202		&				&	N/A	&	t.l.	&	&	-19859.1	&	48	&	70	\\
-ts225		&	1296.11		&	0	&	8466	&	&	1296.11		&	0	&	14	\\
-gr431		&				&	N/A	&	t.l.	&	&	-41751		&	123	&	823	\\
-p654		&				&	N/A	&	t.l.	&	&	-65478.8	&	71	&	1068\\
-gr666		&				&	N/A	&	t.l.	&	&	-65273.1	&	169	&	54	\\
+eil13		&	3228.61		&	1		&	\checkmark	&	<1		&			&	\\
+ulysses22	&	-1964.92	&	2		&	\checkmark	&	<1		&			&	\\
+att48		&	1358.75		&	1		&	\checkmark	&	<1		&			&	\\
+st70		&	-6432.24	&	3		&	\checkmark	&	4		&			&	\\
+eilD76		&	-6774.3		&	2		&	\checkmark	&	8		&			&	\\
+gr96		&	-9527.97	&	6		&	\checkmark	&	46		&			&	\\
+ch150		&	-8827.78	&	14226	&	\checkmark	&	1166	&			&	\\
+kroB200		&	-3151.54	&	t.l.	&	\checkmark	&	270		&			&	\\
+a280		&	-24878.5	&	t.l.	&	\checkmark	&	3550	&			&	\\
+fl417		&				&	t.l.	&	-			&	t.l.	&	\%0.05	&	\\
+gr431		&	-41742.6	&	5180	&	\checkmark	&	2651	&			&	\\
+pr439		&	-384.1		&	t.l.	&	\checkmark	&	1502	&			&	\\
+pcb442		&				&	t.l.	&	-			&	t.l.	&	\%0.07	&	\\
+d493		&				&	t.l.	&	-			&	t.l.	&	\%0.02	&	\\
+p654		&				&	t.l.	&	-			&	t.l.	&	\%0.02	&	\\
+d657		&				&	t.l.	&	-			&	t.l.	&	\%0.03	&	\\
 \hline
 \end{tabular} }
+\caption{Computational results for the \alert{Smart Branch}} \label{tbl:results3}
 \end{center}
-\end{minipage}
 \end{table}
-
 \end{frame}
+
+\begin{frame}{Future Work}
+\begin{itemize}
+    \item<1-> Separation heuristics for other families of valid inequalities
+    \item<2-> More sophisticated local search heuristics
+    \item<3-> Improve the branching heuristic
+    \item<4-> Analyzing the evolution of the best solution
+\end{itemize}
+\end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ordered Instances of the Scheduling Problem}
@@ -575,14 +613,14 @@ gr666		&				&	N/A	&	t.l.	&	&	-65273.1	&	169	&	54	\\
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Fairness I}
+\begin{frame}{Problem Variants I}
 	\begin{itemize}
     	\item<1-> Two factors determine the type of the problem:
         	\begin{itemize}
             	\item<2-> The objective function
                 \item<3-> The valuations for resources
             \end{itemize}
-        \item<4-> Fairness is encoded in the objective function    
+        \item<4-> Some notion of \emph{fairness} is encoded in the objective function    
 		\item<5-> Objective functions in this presentation:
         	\begin{itemize}
             	\item<6-> Maximize the minimum utility: \alert{Max-Min Fair Allocation} (\alert{Santa Claus})
@@ -592,7 +630,8 @@ gr666		&				&	N/A	&	t.l.	&	&	-65273.1	&	169	&	54	\\
         \item<9-> The goal in the Min-Max problem: minimize the \emph{load} of the most heavily-loaded player (makespan)
     \end{itemize}
 \end{frame}
-\begin{frame}
+
+\begin{frame}{Problem Variants II}
     \begin{itemize}
 		\item<1-> Resource values in this presentation: 
         	\begin{itemize}
@@ -603,6 +642,54 @@ gr666		&				&	N/A	&	t.l.	&	&	-65273.1	&	169	&	54	\\
 			\end{itemize}
     \end{itemize}
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Background}
+
+\begin{frame}{Background I}
+	Restricted Max-Min Fair Allocation (Santa Claus):
+	\begin{itemize}
+		\item<2-> Hardness results:
+        \begin{itemize}
+        	\item<3-> A $\frac{1}{2}$ inapproximability follows from the work of Lenstra, Shmoys, and Tardos \cite{LST90} 
+		\end{itemize}
+        \item<4-> Approximations:
+        \begin{itemize}
+            \item<5-> Asadpour et al. provided a $\frac{1}{4}$ \alert{estimation} algorithm via local search \cite{AFS08}
+            \item<6-> The exponential running time of the local search in \cite{AFS08} was later improved to quasipolynomial ($n^{\mathcal{O}(\log n)}$) by Pol\'{a}\v{c}ek and Svensson \cite{PS12}
+            \item<7-> Recently, Annamalai, Kalaitzis, and Svensson managed to give a \alert{$\frac{1}{13}$} approximation which runs in polynomial time \cite{AKS14}
+        \end{itemize}
+        \item<8-> PTAS:
+        \begin{itemize}
+            \item<9-> Alon et al. provided a PTAS for the case where the graph $H$ is a complete bipartite graph \cite{AAWY98}
+            \item<10-> Jansen improved the running time of the PTAS by Alon et al. \cite{Jansen10}
+            \item<11-> Muratore et al. \cite{MSW10} and Schwarz \cite{Schwarz10} provide PTASs on instances with \emph{nested} and \emph{tree-precedence} intervals respectively.
+        \end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Background II}
+	Restricted Min-Max Fair Allocation ($R \, | \, | \, C_{\max}$):
+    \begin{itemize}
+    	\item<2-> Hardness results:
+        \begin{itemize}
+        	\item<3-> A famous $\frac{3}{2}$ inapproximability by Lenstra, Shmoys, and Tardos \cite{LST90}
+        \end{itemize}
+        \item<4-> Approximations:
+        \begin{itemize}
+        	\item<5-> Lenstra, Shmoys, and Tardos also provided a $2$-approximation using the \alert{Assignment LP} formulation.
+            \item<6-> Svensson provided a \alert{$\frac{33}{17} + \varepsilon$ estimation} algorithm for small values of $\varepsilon$ \cite{Svensson11}
+            \item<7-> Ebenlender, Krc\'{a}l, and Sgall \cite{EKS08} provided a \alert{$1.75$} approximation algorithm for the special case where each resource (job) can be assigned to at most two players (machines)
+        \end{itemize}
+        \item<8-> PTAS:
+        \begin{itemize}
+            \item The results of Alon et al. \cite{AAWY98}, Jansen \cite{Jansen10}, Muratore et al. \cite{MSW10}, and Schwarz \cite{Schwarz10} hold for the $R \, | \, | \, C_{\max}$ as well.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Definitions}
 
 \begin{frame}{Ordered Instances I}
 	\begin{definition}[Adjacency Property]
@@ -677,52 +764,8 @@ Let $H = (X, \, Y, \, E)$ be a bipartite graph. An ordering $<_X$ of $X$ in $H$ 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Background}
-
-\begin{frame}{Related Work I}
-	Restricted Max-Min Fair Allocation (Santa Claus):
-	\begin{itemize}
-		\item<2-> Hardness results:
-        \begin{itemize}
-        	\item<3-> A $\frac{1}{2}$ inapproximability follows from the work of Lenstra, Shmoys, and Tardos \cite{LST90} 
-		\end{itemize}
-        \item<4-> Approximations:
-        \begin{itemize}
-            \item<5-> Asadpour et al. provided a $\frac{1}{4}$ \alert{estimation} algorithm via local search \cite{AFS08}
-            \item<6-> The exponential running time of the local search in \cite{AFS08} was later improved to quasipolynomial ($n^{\mathcal{O}(\log n)}$) by Pol\'{a}\v{c}ek and Svensson \cite{PS12}
-            \item<7-> Recently, Annamalai, Kalaitzis, and Svensson managed to give a \alert{$\frac{1}{13}$} approximation which runs in polynomial time \cite{AKS14}
-        \end{itemize}
-        \item<8-> PTAS:
-        \begin{itemize}
-            \item<9-> Alon et al. provided a PTAS for the case where the graph $H$ is a complete bipartite graph \cite{AAWY98}
-            \item<10-> Jansen improved the running time of the PTAS by Alon et al. \cite{Jansen10}
-            \item<11-> Muratore et al. \cite{MSW10} and Schwarz \cite{Schwarz10} provide PTASs on instances with \emph{nested} and \emph{tree-precedence} intervals respectively.
-        \end{itemize}
-	\end{itemize}
-\end{frame}
-
-\begin{frame}{Related Work II}
-	Restricted Min-Max Fair Allocation ($R \, | \, | \, C_{\max}$):
-    \begin{itemize}
-    	\item<2-> Hardness results:
-        \begin{itemize}
-        	\item<3-> A famous $\frac{3}{2}$ inapproximability by Lenstra, Shmoys, and Tardos \cite{LST90}
-        \end{itemize}
-        \item<4-> Approximations:
-        \begin{itemize}
-        	\item<5-> Lenstra, Shmoys, and Tardos also provided a $2$-approximation using the \alert{Assignment LP} formulation.
-            \item<6-> Svensson provided a \alert{$\frac{33}{17} + \varepsilon$ estimation} algorithm for small values of $\varepsilon$ \cite{Svensson11}
-            \item<7-> Ebenlender, Krc\'{a}l, and Sgall \cite{EKS08} provided a \alert{$1.75$} approximation algorithm for the special case where each resource (job) can be assigned to at most two players (machines)
-        \end{itemize}
-        \item<8-> PTAS:
-        \begin{itemize}
-            \item The results of Alon et al. \cite{AAWY98}, Jansen \cite{Jansen10}, Muratore et al. \cite{MSW10}, and Schwarz \cite{Schwarz10} hold for the $R \, | \, | \, C_{\max}$ as well.
-        \end{itemize}
-    \end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Our Contribution}
+
 \begin{frame}{Our Contribution}	
     \begin{itemize}
     	\item<1-> In this thesis, we provide:
@@ -843,8 +886,8 @@ Let $H = (X, \, Y, \, E)$ be a bipartite graph. An ordering $<_X$ of $X$ in $H$ 
         \item<2-> Items on the trees (partial orders on resources)
         \item<3-> Finding other graph classes that admit a PTAS
         	\begin{itemize}
-            	\item<4-> Trivially perfect bigraphs
-                \item<5-> Chordal bigraphs
+            	\item<4-> Trivially perfect bigraphs?
+                \item<5-> Chordal bigraphs?
                 \item<6-> $\ldots$
             \end{itemize}
     \end{itemize}
