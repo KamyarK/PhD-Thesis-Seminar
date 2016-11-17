@@ -81,15 +81,15 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
 \begin{frame}{Example 1. Scheduling I}
 \begin{itemize}
 	\item<1-> Scheduling is one of the classic problems in combinatorial optimization
-	\item<3-> Scheduling and resource allocation have many similarities
-	\item<4-> Scheduling problems can usually be cast as resource allocation problems and vice versa    
+	\item<2-> Scheduling and resource allocation have many similarities
+	\item<3-> Scheduling problems can usually be cast as resource allocation problems and vice versa    
 	\begin{example}
 	    Given:
         \begin{itemize}
-            \item<6-> A set of jobs
-            \item<7-> A set of processors (machines)
-            \item<8-> Processing times
-            \item<9-> An objective functions: minimize the makespan, sum of processing times, $\ldots$
+            \item<4-> A set of jobs
+            \item<5-> A set of processors (machines)
+            \item<6-> Processing times
+            \item<7-> An objective functions: minimize the makespan, sum of processing times, $\ldots$
         \end{itemize}
     \end{example}
 \end{itemize}
@@ -175,7 +175,7 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
     \item<1-> Linear Programming (LP) is the model of choice for obtaining exact solutions
     \item<2-> Many researchers have used a \alert{Delayed Column Generation} technique (Column Generation) in the context of VRP with \emph{time windows}
     \item<3-> Column generation works very well for LP formulations with large number of variables
-    \item<4-> See \cite{DDS05} for an extensive list of work
+    \item<4-> See the book ``Column Generation'' \cite{DDS05} for an extensive list of work
 \end{itemize}
 \end{frame}
 
@@ -200,8 +200,8 @@ An allocation $\cA$ for an instance of a \textsc{IRA} problem is a partition of 
     \item<2-> Column generation: do not introduce them all at once
     \item<3-> We use column generation in an iterative frame work: \alert{Branch-and-Price}
     \begin{itemize}
-        \item<4-> A \alert{Branch-and-Cut} on the dual formulation
-        \item<5-> Uses the column generation technique in a branch-and-bound algorithm
+        \item<4-> Uses the column generation technique in a branch-and-bound algorithm
+        \item<5-> A \alert{Branch-and-Cut} on the dual formulation
     \end{itemize}
 \end{itemize}
 \end{frame}
